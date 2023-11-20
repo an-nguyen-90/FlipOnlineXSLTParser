@@ -1,69 +1,335 @@
 <!DOCTYPE html>
-<html lang="en">
+<html
+  lang="en"
+  data-bs-theme="dark"
+>
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="utf-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0"
+      content="width=device-width, initial-scale=1"
     />
-    <title>XML to XSLT Translator</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-      }
-
-      textarea {
-        width: 100%;
-        height: 150px;
-        margin-bottom: 10px;
-      }
-
-      button {
-        padding: 8px;
-        font-size: 16px;
-      }
-
-      pre {
-        white-space: pre-wrap;
-      }
-    </style>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="icon"
+      href="flip-brandmark-transparent-bkgd.svg"
+      type="image/x-icon"
+    />
+    <title>Flip Online XSLT Parser</title>
   </head>
   <body>
-    <h2>XML to XSLT Translator</h2>
+    <div class="container-fluid">
+      <!-- 1st row -->
+      <h1 style="text-align: center">Flip Online XSLT Parser</h1>
 
-    <label for="xmlInput">XML Input:</label>
-    <textarea
-      id="xmlInput"
-      placeholder="Enter XML data"
-    ></textarea>
+      <!-- 2nd row -->
+      <div class="row align-items-end">
+        <!-- csv editor wrapper -->
+        <div class="col">
+          <!-- to put p tag and label components on the same row-->
+          <div class="row">
+            <div class="col"><p>CSV Input:</p></div>
+            <div class="col text-end">
+              <label>
+                <input
+                  type="checkbox"
+                  id="hasHeader"
+                />
+                CSV has a header line
+              </label>
+            </div>
+          </div>
 
-    <label for="xsltInput">XSLT Input:</label>
-    <textarea
-      id="xsltInput"
-      placeholder="Enter XSLT data"
-    ></textarea>
+          <!-- csv editor -->
+          <div id="csvEditor"></div>
+        </div>
 
-    <button onclick="transformXML()">Translate</button>
+        <!-- xslt wrapper -->
+        <div class="col">
+          <!-- to put p tag and label components on the same row-->
+          <div class="row justify-content-end">
+            <div class="col"><p>XML Output Template:</p></div>
+            <div class="col text-end">
+              <button
+                type="submit"
+                class="btn btn-primary btn-sm"
+                onclick="convertToXML()"
+              >
+                Convert to XML
+              </button>
+            </div>
+          </div>
 
-    <h3>Result:</h3>
-    <pre id="result"></pre>
+          <!-- xml template editor -->
+          <div id="xmlTempEditor"></div>
+        </div>
+      </div>
 
+      <div class="row">
+        <div
+          class="col-12"
+          style="height: 4px"
+        ></div>
+      </div>
+
+      <!-- 3rd row -->
+      <div class="row">
+        <div class="col">
+          <p>XSLT Input XML:</p>
+          <div
+            id="xsltInputXmlEditor"
+            onChange="parse()"
+          ></div>
+        </div>
+
+        <div class="col">
+          <p>XSLT:</p>
+          <div
+            id="xsltEditor"
+            onChange="parse()"
+          ></div>
+        </div>
+
+        <div class="col">
+          <p>XSLT Output XML:</p>
+          <div id="xsltOutputXmlEditor"></div>
+        </div>
+      </div>
+    </div>
+    <script
+      async
+      src="https://cdn.jsdelivr.net/npm/es-module-shims@1/dist/es-module-shims.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "@popperjs/core": "https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/esm/popper.min.js",
+          "bootstrap": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.esm.min.js"
+        }
+      }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
     <script>
+      var csvEditor = ace.edit("csvEditor", {
+        theme: "ace/theme/nord_dark",
+        mode: "ace/mode/javascript",
+        autoScrollEditorIntoView: true,
+        maxLines: 10,
+        minLines: 100,
+        fontSize: "10pt",
+        tabSize: 2,
+        hasCssTransforms: true,
+        wrap: true,
+        printMargin: false,
+        value: "Enter or paste CSV here" + "\n".repeat(100),
+      });
+
+      var xmlTempEditor = ace.edit("xmlTempEditor", {
+        theme: "ace/theme/nord_dark",
+        mode: "ace/mode/xml",
+        autoScrollEditorIntoView: true,
+        maxLines: 10,
+        minLines: 100,
+        fontSize: "10pt",
+        tabSize: 2,
+        hasCssTransforms: true,
+        wrap: true,
+        printMargin: false,
+      });
+      const xmlTemplate = `<?xml version="1.0"?>
+<root>
+  <Row>
+    <Cell FieldNo="1">{field1}</Cell>
+    <Cell FieldNo="2">{field2}</Cell>
+    <Cell FieldNo="3">{field3}</Cell>
+    <Cell FieldNo="4">{field4}</Cell>
+    <Cell FieldNo="5">{field5}</Cell>
+    <Cell FieldNo="6">{field6}</Cell>
+    <Cell FieldNo="7">{field7}</Cell>
+    <Cell FieldNo="8">{field8}</Cell>
+    <Cell FieldNo="9">{field9}</Cell>
+    <Cell FieldNo="10">{field10}</Cell>
+    <Cell FieldNo="11">{field11}</Cell>
+    <Cell FieldNo="12">{field12}</Cell>
+    <Cell FieldNo="13">{field13}</Cell>
+    <Cell FieldNo="14">{field14}</Cell>
+    <Cell FieldNo="15">{field15}</Cell>
+    <Cell FieldNo="16">{field16}</Cell>
+    <Cell FieldNo="17">{field17}</Cell>
+    <Cell FieldNo="18">{field18}</Cell>
+    <Cell FieldNo="19">{field19}</Cell>
+    <Cell FieldNo="20">{field20}</Cell>
+    <Cell FieldNo="21">{field21}</Cell>
+    <Cell FieldNo="22">{field22}</Cell>
+    <Cell FieldNo="23">{field23}</Cell>
+    <Cell FieldNo="24">{field24}</Cell>
+    <Cell FieldNo="25">{field25}</Cell>
+    <Cell FieldNo="26">{field26}</Cell>
+    <Cell FieldNo="27">{field27}</Cell>
+    <Cell FieldNo="28">{field28}</Cell>
+    <Cell FieldNo="29">{field29}</Cell>
+    <Cell FieldNo="30">{field30}</Cell>
+    <Cell FieldNo="31">{field31}</Cell>
+    <Cell FieldNo="32">{field32}</Cell>
+    <Cell FieldNo="33">{field33}</Cell>
+    <Cell FieldNo="34">{field34}</Cell>
+    <Cell FieldNo="35">{field35}</Cell>
+    <Cell FieldNo="36">{field36}</Cell>
+    <Cell FieldNo="37">{field37}</Cell>
+    <Cell FieldNo="38">{field38}</Cell>
+    <Cell FieldNo="39">{field39}</Cell>
+    <Cell FieldNo="40">{field40}</Cell>
+    <Cell FieldNo="41">{field41}</Cell>
+    <Cell FieldNo="42">{field42}</Cell>
+    <Cell FieldNo="43">{field43}</Cell>
+    <Cell FieldNo="44">{field44}</Cell>
+    <Cell FieldNo="45">{field45}</Cell>
+    <Cell FieldNo="46">{field46}</Cell>
+    <Cell FieldNo="47">{field47}</Cell>
+    <Cell FieldNo="48">{field48}</Cell>
+    <Cell FieldNo="49">{field49}</Cell>
+    <Cell FieldNo="50">{field50}</Cell>
+    <Cell FieldNo="51">{field51}</Cell>
+    <Cell FieldNo="52">{field52}</Cell>
+    <Cell FieldNo="53">{field53}</Cell>
+    <Cell FieldNo="54">{field54}</Cell>
+    <Cell FieldNo="55">{field55}</Cell>
+    <Cell FieldNo="56">{field56}</Cell>
+    <Cell FieldNo="57">{field57}</Cell>
+    <Cell FieldNo="58">{field58}</Cell>
+    <Cell FieldNo="59">{field59}</Cell>
+    <Cell FieldNo="60">{field60}</Cell>
+    <Cell FieldNo="61">{field61}</Cell>
+    <Cell FieldNo="62">{field62}</Cell>
+    <Cell FieldNo="63">{field63}</Cell>
+    <Cell FieldNo="64">{field64}</Cell>
+    <Cell FieldNo="65">{field65}</Cell>
+    <Cell FieldNo="66">{field66}</Cell>
+    <Cell FieldNo="67">{field67}</Cell>
+    <Cell FieldNo="68">{field68}</Cell>
+    <Cell FieldNo="69">{field69}</Cell>
+    <Cell FieldNo="70">{field70}</Cell>
+    <Cell FieldNo="71">{field71}</Cell>
+    <Cell FieldNo="72">{field72}</Cell>
+    <Cell FieldNo="73">{field73}</Cell>
+    <Cell FieldNo="74">{field74}</Cell>
+    <Cell FieldNo="75">{field75}</Cell>
+    <Cell FieldNo="76">{field76}</Cell>
+    <Cell FieldNo="77">{field77}</Cell>
+    <Cell FieldNo="78">{field78}</Cell>
+    <Cell FieldNo="79">{field79}</Cell>
+    <Cell FieldNo="80">{field80}</Cell>
+    <Cell FieldNo="81">{field81}</Cell>
+    <Cell FieldNo="82">{field82}</Cell>
+    <Cell FieldNo="83">{field83}</Cell>
+    <Cell FieldNo="84">{field84}</Cell>
+    <Cell FieldNo="85">{field85}</Cell>
+    <Cell FieldNo="86">{field86}</Cell>
+    <Cell FieldNo="87">{field87}</Cell>
+    <Cell FieldNo="88">{field88}</Cell>
+    <Cell FieldNo="89">{field89}</Cell>
+  </Row>
+</root>`;
+      xmlTempEditor.setValue(xmlTemplate);
+
+      var xsltInputXmlEditor = ace.edit("xsltInputXmlEditor", {
+        theme: "ace/theme/nord_dark",
+        mode: "ace/mode/xml",
+        autoScrollEditorIntoView: true,
+        maxLines: 100,
+        minLines: 100,
+        fontSize: "10pt",
+        tabSize: 2,
+        hasCssTransforms: true,
+        wrap: true,
+        printMargin: false,
+      });
+      xsltInputXmlEditor.getSession().on("change", function () {
+        setTimeout(transformXML, 100);
+        // transformXML();
+      });
+
+      var xsltEditor = ace.edit("xsltEditor", {
+        theme: "ace/theme/nord_dark",
+        mode: "ace/mode/xml",
+        autoScrollEditorIntoView: true,
+        maxLines: 100,
+        minLines: 100,
+        fontSize: "10pt",
+        tabSize: 2,
+        hasCssTransforms: true,
+        wrap: true,
+        printMargin: false,
+        value: "Enter or paste XSLT here" + "\n".repeat(100),
+      });
+      xsltEditor.getSession().on("change", function () {
+        setTimeout(transformXML, 100);
+        // transformXML();
+      });
+
+      var xsltOutputXmlEditor = ace.edit("xsltOutputXmlEditor", {
+        theme: "ace/theme/nord_dark",
+        mode: "ace/mode/xml",
+        autoScrollEditorIntoView: true,
+        maxLines: 100,
+        minLines: 100,
+        fontSize: "10pt",
+        tabSize: 2,
+        hasCssTransforms: true,
+        wrap: true,
+        printMargin: false,
+        readOnly: true,
+      });
+
+      function convertToXML() {
+        var csvInput = csvEditor.getSession().getValue().replace(/"/g, "");
+        var hasHeader = document.getElementById("hasHeader").checked;
+        var xmlTemplate = xmlTempEditor.getSession().getValue();
+        var lines = csvInput.split("\n");
+        var xmlOutput = "";
+
+        for (var i = 0; i < lines.length; i++) {
+          var fields = lines[i].split(",");
+          if (hasHeader && i === 0) {
+            // Skip the first line if it is a header
+            continue;
+          }
+
+          xmlOutput +=
+            xmlTemplate.replace(/\{field(\d+)\}/g, function (match, p1) {
+              var fieldIndex = parseInt(p1, 10) - 1;
+              // Check if the field is undefined or an empty string
+              return fields[fieldIndex] !== undefined && fields[fieldIndex] !== "" ? fields[fieldIndex] : ""; // Updated this line
+            }) + "\n";
+        }
+        xsltInputXmlEditor.setValue(xmlOutput);
+      }
+
       function transformXML() {
-        var xmlInput = document.getElementById("xmlInput").value;
-        var xsltInput = document.getElementById("xsltInput").value;
+        var xmlInput = xsltInputXmlEditor.getSession().getValue();
+        var xsltInput = xsltEditor.getSession().getValue();
 
         var parser = new DOMParser();
         var xmlDoc = parser.parseFromString(xmlInput, "application/xml");
-        var xsltDoc = parser.parseFromString(xsltInput, "application/xml");
+        var xslDoc = parser.parseFromString(xsltInput, "application/xml");
+
+        if (xmlDoc.documentElement.nodeName == "parsererror" || xslDoc.documentElement.nodeName == "parsererror") {
+          xsltOutputXmlEditor.setValue("Error parsing XML or XSLT.");
+          return;
+        }
 
         var xsltProcessor = new XSLTProcessor();
-        xsltProcessor.importStylesheet(xsltDoc);
+        xsltProcessor.importStylesheet(xslDoc);
 
         var resultDoc = xsltProcessor.transformToDocument(xmlDoc);
         var resultString = new XMLSerializer().serializeToString(resultDoc);
-
-        document.getElementById("result").textContent = resultString;
+        xsltOutputXmlEditor.setValue(resultString);
       }
     </script>
   </body>
