@@ -58,6 +58,7 @@
               <button
                 type="submit"
                 class="btn btn-primary btn-sm"
+                onclick="convertToXML()"
               >
                 Convert to XML
               </button>
@@ -83,7 +84,7 @@
           <div id="xsltInputXmlEditor"></div>
         </div>
 
-        <div class="col-6">
+        <div class="col">
           <p>XSLT</p>
           <div id="xsltEditor"></div>
         </div>
@@ -132,100 +133,100 @@
         printMargin: false,
       });
       const xmlTemplate = `<?xml version="1.0"?>
-<root>
-	<Row>
-		<Cell FieldNo="1">{field1}</Cell>
-		<Cell FieldNo="2">{field2}</Cell>
-		<Cell FieldNo="3">{field3}</Cell>
-		<Cell FieldNo="4">{field4}</Cell>
-		<Cell FieldNo="5">{field5}</Cell>
-		<Cell FieldNo="6">{field6}</Cell>
-		<Cell FieldNo="7">{field7}</Cell>
-		<Cell FieldNo="8">{field8}</Cell>
-		<Cell FieldNo="9">{field9}</Cell>
-		<Cell FieldNo="10">{field10}</Cell>
-		<Cell FieldNo="11">{field11}</Cell>
-		<Cell FieldNo="12">{field12}</Cell>
-		<Cell FieldNo="13">{field13}</Cell>
-		<Cell FieldNo="14">{field14}</Cell>
-		<Cell FieldNo="15">{field15}</Cell>
-		<Cell FieldNo="16">{field16}</Cell>
-		<Cell FieldNo="17">{field17}</Cell>
-		<Cell FieldNo="18">{field18}</Cell>
-		<Cell FieldNo="19">{field19}</Cell>
-		<Cell FieldNo="20">{field20}</Cell>
-		<Cell FieldNo="21">{field21}</Cell>
-		<Cell FieldNo="22">{field22}</Cell>
-		<Cell FieldNo="23">{field23}</Cell>
-		<Cell FieldNo="24">{field24}</Cell>
-		<Cell FieldNo="25">{field25}</Cell>
-		<Cell FieldNo="26">{field26}</Cell>
-		<Cell FieldNo="27">{field27}</Cell>
-		<Cell FieldNo="28">{field28}</Cell>
-		<Cell FieldNo="29">{field29}</Cell>
-		<Cell FieldNo="30">{field30}</Cell>
-		<Cell FieldNo="31">{field31}</Cell>
-		<Cell FieldNo="32">{field32}</Cell>
-		<Cell FieldNo="33">{field33}</Cell>
-		<Cell FieldNo="34">{field34}</Cell>
-		<Cell FieldNo="35">{field35}</Cell>
-		<Cell FieldNo="36">{field36}</Cell>
-		<Cell FieldNo="37">{field37}</Cell>
-		<Cell FieldNo="38">{field38}</Cell>
-		<Cell FieldNo="39">{field39}</Cell>
-		<Cell FieldNo="40">{field40}</Cell>
-		<Cell FieldNo="41">{field41}</Cell>
-		<Cell FieldNo="42">{field42}</Cell>
-		<Cell FieldNo="43">{field43}</Cell>
-		<Cell FieldNo="44">{field44}</Cell>
-		<Cell FieldNo="45">{field45}</Cell>
-		<Cell FieldNo="46">{field46}</Cell>
-		<Cell FieldNo="47">{field47}</Cell>
-		<Cell FieldNo="48">{field48}</Cell>
-		<Cell FieldNo="49">{field49}</Cell>
-		<Cell FieldNo="50">{field50}</Cell>
-		<Cell FieldNo="51">{field51}</Cell>
-		<Cell FieldNo="52">{field52}</Cell>
-		<Cell FieldNo="53">{field53}</Cell>
-		<Cell FieldNo="54">{field54}</Cell>
-		<Cell FieldNo="55">{field55}</Cell>
-		<Cell FieldNo="56">{field56}</Cell>
-		<Cell FieldNo="57">{field57}</Cell>
-		<Cell FieldNo="58">{field58}</Cell>
-		<Cell FieldNo="59">{field59}</Cell>
-		<Cell FieldNo="60">{field60}</Cell>
-		<Cell FieldNo="61">{field61}</Cell>
-		<Cell FieldNo="62">{field62}</Cell>
-		<Cell FieldNo="63">{field63}</Cell>
-		<Cell FieldNo="64">{field64}</Cell>
-		<Cell FieldNo="65">{field65}</Cell>
-		<Cell FieldNo="66">{field66}</Cell>
-		<Cell FieldNo="67">{field67}</Cell>
-		<Cell FieldNo="68">{field68}</Cell>
-		<Cell FieldNo="69">{field69}</Cell>
-		<Cell FieldNo="70">{field70}</Cell>
-		<Cell FieldNo="71">{field71}</Cell>
-		<Cell FieldNo="72">{field72}</Cell>
-		<Cell FieldNo="73">{field73}</Cell>
-		<Cell FieldNo="74">{field74}</Cell>
-		<Cell FieldNo="75">{field75}</Cell>
-		<Cell FieldNo="76">{field76}</Cell>
-		<Cell FieldNo="77">{field77}</Cell>
-		<Cell FieldNo="78">{field78}</Cell>
-		<Cell FieldNo="79">{field79}</Cell>
-		<Cell FieldNo="80">{field80}</Cell>
-		<Cell FieldNo="81">{field81}</Cell>
-		<Cell FieldNo="82">{field82}</Cell>
-		<Cell FieldNo="83">{field83}</Cell>
-		<Cell FieldNo="84">{field84}</Cell>
-		<Cell FieldNo="85">{field85}</Cell>
-		<Cell FieldNo="86">{field86}</Cell>
-		<Cell FieldNo="87">{field87}</Cell>
-		<Cell FieldNo="88">{field88}</Cell>
-		<Cell FieldNo="89">{field89}</Cell>
-	</Row>
-</root>
-      `;
+      <root>
+      	<Row>
+      		<Cell FieldNo="1">{field1}</Cell>
+      		<Cell FieldNo="2">{field2}</Cell>
+      		<Cell FieldNo="3">{field3}</Cell>
+      		<Cell FieldNo="4">{field4}</Cell>
+      		<Cell FieldNo="5">{field5}</Cell>
+      		<Cell FieldNo="6">{field6}</Cell>
+      		<Cell FieldNo="7">{field7}</Cell>
+      		<Cell FieldNo="8">{field8}</Cell>
+      		<Cell FieldNo="9">{field9}</Cell>
+      		<Cell FieldNo="10">{field10}</Cell>
+      		<Cell FieldNo="11">{field11}</Cell>
+      		<Cell FieldNo="12">{field12}</Cell>
+      		<Cell FieldNo="13">{field13}</Cell>
+      		<Cell FieldNo="14">{field14}</Cell>
+      		<Cell FieldNo="15">{field15}</Cell>
+      		<Cell FieldNo="16">{field16}</Cell>
+      		<Cell FieldNo="17">{field17}</Cell>
+      		<Cell FieldNo="18">{field18}</Cell>
+      		<Cell FieldNo="19">{field19}</Cell>
+      		<Cell FieldNo="20">{field20}</Cell>
+      		<Cell FieldNo="21">{field21}</Cell>
+      		<Cell FieldNo="22">{field22}</Cell>
+      		<Cell FieldNo="23">{field23}</Cell>
+      		<Cell FieldNo="24">{field24}</Cell>
+      		<Cell FieldNo="25">{field25}</Cell>
+      		<Cell FieldNo="26">{field26}</Cell>
+      		<Cell FieldNo="27">{field27}</Cell>
+      		<Cell FieldNo="28">{field28}</Cell>
+      		<Cell FieldNo="29">{field29}</Cell>
+      		<Cell FieldNo="30">{field30}</Cell>
+      		<Cell FieldNo="31">{field31}</Cell>
+      		<Cell FieldNo="32">{field32}</Cell>
+      		<Cell FieldNo="33">{field33}</Cell>
+      		<Cell FieldNo="34">{field34}</Cell>
+      		<Cell FieldNo="35">{field35}</Cell>
+      		<Cell FieldNo="36">{field36}</Cell>
+      		<Cell FieldNo="37">{field37}</Cell>
+      		<Cell FieldNo="38">{field38}</Cell>
+      		<Cell FieldNo="39">{field39}</Cell>
+      		<Cell FieldNo="40">{field40}</Cell>
+      		<Cell FieldNo="41">{field41}</Cell>
+      		<Cell FieldNo="42">{field42}</Cell>
+      		<Cell FieldNo="43">{field43}</Cell>
+      		<Cell FieldNo="44">{field44}</Cell>
+      		<Cell FieldNo="45">{field45}</Cell>
+      		<Cell FieldNo="46">{field46}</Cell>
+      		<Cell FieldNo="47">{field47}</Cell>
+      		<Cell FieldNo="48">{field48}</Cell>
+      		<Cell FieldNo="49">{field49}</Cell>
+      		<Cell FieldNo="50">{field50}</Cell>
+      		<Cell FieldNo="51">{field51}</Cell>
+      		<Cell FieldNo="52">{field52}</Cell>
+      		<Cell FieldNo="53">{field53}</Cell>
+      		<Cell FieldNo="54">{field54}</Cell>
+      		<Cell FieldNo="55">{field55}</Cell>
+      		<Cell FieldNo="56">{field56}</Cell>
+      		<Cell FieldNo="57">{field57}</Cell>
+      		<Cell FieldNo="58">{field58}</Cell>
+      		<Cell FieldNo="59">{field59}</Cell>
+      		<Cell FieldNo="60">{field60}</Cell>
+      		<Cell FieldNo="61">{field61}</Cell>
+      		<Cell FieldNo="62">{field62}</Cell>
+      		<Cell FieldNo="63">{field63}</Cell>
+      		<Cell FieldNo="64">{field64}</Cell>
+      		<Cell FieldNo="65">{field65}</Cell>
+      		<Cell FieldNo="66">{field66}</Cell>
+      		<Cell FieldNo="67">{field67}</Cell>
+      		<Cell FieldNo="68">{field68}</Cell>
+      		<Cell FieldNo="69">{field69}</Cell>
+      		<Cell FieldNo="70">{field70}</Cell>
+      		<Cell FieldNo="71">{field71}</Cell>
+      		<Cell FieldNo="72">{field72}</Cell>
+      		<Cell FieldNo="73">{field73}</Cell>
+      		<Cell FieldNo="74">{field74}</Cell>
+      		<Cell FieldNo="75">{field75}</Cell>
+      		<Cell FieldNo="76">{field76}</Cell>
+      		<Cell FieldNo="77">{field77}</Cell>
+      		<Cell FieldNo="78">{field78}</Cell>
+      		<Cell FieldNo="79">{field79}</Cell>
+      		<Cell FieldNo="80">{field80}</Cell>
+      		<Cell FieldNo="81">{field81}</Cell>
+      		<Cell FieldNo="82">{field82}</Cell>
+      		<Cell FieldNo="83">{field83}</Cell>
+      		<Cell FieldNo="84">{field84}</Cell>
+      		<Cell FieldNo="85">{field85}</Cell>
+      		<Cell FieldNo="86">{field86}</Cell>
+      		<Cell FieldNo="87">{field87}</Cell>
+      		<Cell FieldNo="88">{field88}</Cell>
+      		<Cell FieldNo="89">{field89}</Cell>
+      	</Row>
+      </root>
+            `;
       xmlTempEditor.setValue(xmlTemplate);
 
       var xsltInputXmlEditor = ace.edit("xsltInputXmlEditor", {
@@ -261,6 +262,49 @@
         wrap: true,
         printMargin: false,
       });
+
+      function csvToXml() {
+        try {
+          var csvValue = csvEditor.getSession().getValue();
+          var xmlTempValue = xmlTempEditor.getSession().getValue();
+        } catch (error) {}
+      }
+
+      function convertToXML() {
+        console.log("START!!");
+        var csvInput = csvEditor.getSession().getValue().replace(/"/g, "");
+        console.log("csvInput: ", csvInput);
+        var hasHeader = document.getElementById("hasHeader").checked;
+        console.log("hasHeader: ", hasHeader);
+        var xmlTemplate = xmlTempEditor.getSession().getValue();
+        console.log("xmlTemplate: ", xmlTemplate);
+        var lines = csvInput.split("\n");
+        var xmlOutput = "";
+
+        console.log("ENTER FOR LOP");
+        for (var i = 0; i < lines.length; i++) {
+          var fields = lines[i].split(",");
+          console.log("fields: ", fields);
+
+          console.log("ENTER IF");
+          if (hasHeader && i === 0) {
+            // Skip the first line if it is a header
+            continue;
+          }
+          console.log("SKIPPED IF");
+
+          console.log("ENTER xmlOutput GENERATE INPUT");
+          xmlOutput +=
+            xmlTemplate.replace(/\{field(\d+)\}/g, function (match, p1) {
+              var fieldIndex = parseInt(p1, 10) - 1;
+              // Check if the field is undefined or an empty string
+              return fields[fieldIndex] !== undefined && fields[fieldIndex] !== "" ? fields[fieldIndex] : ""; // Updated this line
+            }) + "\n";
+        }
+        console.log("EXIST xmlOutput GENERATE INPUT");
+
+        xsltInputXmlEditor.setValue(xmlOutput);
+      }
     </script>
   </body>
 </html>
