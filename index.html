@@ -56,9 +56,8 @@
             <div class="col"><p>XML Output Template:</p></div>
             <div class="col text-end">
               <button
-                type="submit"
+                id="csvToXmlBtn"
                 class="btn btn-primary btn-sm"
-                onclick="convertToXML()"
               >
                 Convert to XML
               </button>
@@ -115,34 +114,41 @@
       }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
-      var csvEditor = ace.edit("csvEditor", {
-        theme: "ace/theme/nord_dark",
-        mode: "ace/mode/javascript",
-        autoScrollEditorIntoView: true,
-        maxLines: 10,
-        minLines: 100,
-        fontSize: "10pt",
-        tabSize: 2,
-        hasCssTransforms: true,
-        wrap: true,
-        printMargin: false,
-        value: "Enter or paste CSV here" + "\n".repeat(100),
-      });
+      $(document).ready(function () {
+        var xsltOutputXmlEditor = $("#xsltOutputXmlEditor");
 
-      var xmlTempEditor = ace.edit("xmlTempEditor", {
-        theme: "ace/theme/nord_dark",
-        mode: "ace/mode/xml",
-        autoScrollEditorIntoView: true,
-        maxLines: 10,
-        minLines: 100,
-        fontSize: "10pt",
-        tabSize: 2,
-        hasCssTransforms: true,
-        wrap: true,
-        printMargin: false,
-      });
-      const xmlTemplate = `<?xml version="1.0"?>
+        var xsltProcessor = new XSLTProcessor();
+        var xmlSerializer = new XMLSerializer();
+
+        var csvEditor = ace.edit("csvEditor", {
+          theme: "ace/theme/nord_dark",
+          mode: "ace/mode/javascript",
+          autoScrollEditorIntoView: true,
+          maxLines: 10,
+          minLines: 100,
+          fontSize: "10pt",
+          tabSize: 2,
+          hasCssTransforms: true,
+          wrap: true,
+          printMargin: false,
+          value: "Enter or paste CSV here" + "\n".repeat(100),
+        });
+
+        var xmlTempEditor = ace.edit("xmlTempEditor", {
+          theme: "ace/theme/nord_dark",
+          mode: "ace/mode/xml",
+          autoScrollEditorIntoView: true,
+          maxLines: 10,
+          minLines: 100,
+          fontSize: "10pt",
+          tabSize: 2,
+          hasCssTransforms: true,
+          wrap: true,
+          printMargin: false,
+        });
+        const xmlTemplate = `<?xml version="1.0"?>
 <root>
   <Row>
     <Cell FieldNo="1">{field1}</Cell>
@@ -236,101 +242,94 @@
     <Cell FieldNo="89">{field89}</Cell>
   </Row>
 </root>`;
-      xmlTempEditor.setValue(xmlTemplate);
+        xmlTempEditor.setValue(xmlTemplate);
 
-      var xsltInputXmlEditor = ace.edit("xsltInputXmlEditor", {
-        theme: "ace/theme/nord_dark",
-        mode: "ace/mode/xml",
-        autoScrollEditorIntoView: true,
-        maxLines: 100,
-        minLines: 100,
-        fontSize: "10pt",
-        tabSize: 2,
-        hasCssTransforms: true,
-        wrap: true,
-        printMargin: false,
-      });
-      xsltInputXmlEditor.getSession().on("change", function () {
-        setTimeout(transformXML, 100);
-        // transformXML();
-      });
+        var xsltInputXmlEditor = ace.edit("xsltInputXmlEditor", {
+          theme: "ace/theme/nord_dark",
+          mode: "ace/mode/xml",
+          autoScrollEditorIntoView: true,
+          maxLines: 100,
+          minLines: 100,
+          fontSize: "10pt",
+          tabSize: 2,
+          hasCssTransforms: true,
+          wrap: true,
+          printMargin: false,
+        });
 
-      var xsltEditor = ace.edit("xsltEditor", {
-        theme: "ace/theme/nord_dark",
-        mode: "ace/mode/xml",
-        autoScrollEditorIntoView: true,
-        maxLines: 100,
-        minLines: 100,
-        fontSize: "10pt",
-        tabSize: 2,
-        hasCssTransforms: true,
-        wrap: true,
-        printMargin: false,
-        value: "Enter or paste XSLT here" + "\n".repeat(100),
-      });
-      xsltEditor.getSession().on("change", function () {
-        setTimeout(transformXML, 100);
-        // transformXML();
-      });
+        var xsltEditor = ace.edit("xsltEditor", {
+          theme: "ace/theme/nord_dark",
+          mode: "ace/mode/xml",
+          autoScrollEditorIntoView: true,
+          maxLines: 100,
+          minLines: 100,
+          fontSize: "10pt",
+          tabSize: 2,
+          hasCssTransforms: true,
+          wrap: true,
+          printMargin: false,
+          value: "Enter or paste XSLT here",
+        });
 
-      var xsltOutputXmlEditor = ace.edit("xsltOutputXmlEditor", {
-        theme: "ace/theme/nord_dark",
-        mode: "ace/mode/xml",
-        autoScrollEditorIntoView: true,
-        maxLines: 100,
-        minLines: 100,
-        fontSize: "10pt",
-        tabSize: 2,
-        hasCssTransforms: true,
-        wrap: true,
-        printMargin: false,
-        readOnly: true,
-      });
+        var xsltOutputXmlEditor = ace.edit("xsltOutputXmlEditor", {
+          theme: "ace/theme/nord_dark",
+          mode: "ace/mode/xml",
+          autoScrollEditorIntoView: true,
+          maxLines: 100,
+          minLines: 100,
+          fontSize: "10pt",
+          tabSize: 2,
+          hasCssTransforms: true,
+          wrap: true,
+          printMargin: false,
+          readOnly: true,
+        });
 
-      function convertToXML() {
-        var csvInput = csvEditor.getSession().getValue().replace(/"/g, "");
-        var hasHeader = document.getElementById("hasHeader").checked;
-        var xmlTemplate = xmlTempEditor.getSession().getValue();
-        var lines = csvInput.split("\n");
-        var xmlOutput = "";
+        $("#csvToXmlBtn").click(function convertToXML() {
+          var csvInput = csvEditor.getSession().getValue().replace(/"/, "");
+          var hasHeader = document.getElementById("hasHeader").checked;
+          var xmlTemplate = xmlTempEditor.getSession().getValue();
+          var lines = csvInput.split("\n");
+          var xmlOutput = "";
 
-        for (var i = 0; i < lines.length; i++) {
-          var fields = lines[i].split(",");
-          if (hasHeader && i === 0) {
-            // Skip the first line if it is a header
-            continue;
+          for (var i = 0; i < lines.length; i++) {
+            var fields = lines[i].split(",");
+            if (hasHeader && i === 0) {
+              // Skip the first line if it is a header
+              continue;
+            }
+
+            xmlOutput +=
+              xmlTemplate.replace(/\{field(\d+)\}/g, function (match, p1) {
+                var fieldIndex = parseInt(p1, 10) - 1;
+                // Check if the field is undefined or an empty string
+                return fields[fieldIndex] !== undefined && fields[fieldIndex] !== "" ? fields[fieldIndex] : ""; // Updated this line
+              }) + "\n";
           }
+          xsltInputXmlEditor.setValue(xmlOutput);
+        });
 
-          xmlOutput +=
-            xmlTemplate.replace(/\{field(\d+)\}/g, function (match, p1) {
-              var fieldIndex = parseInt(p1, 10) - 1;
-              // Check if the field is undefined or an empty string
-              return fields[fieldIndex] !== undefined && fields[fieldIndex] !== "" ? fields[fieldIndex] : ""; // Updated this line
-            }) + "\n";
-        }
-        xsltInputXmlEditor.setValue(xmlOutput);
-      }
-
-      function transformXML() {
-        var xmlInput = xsltInputXmlEditor.getSession().getValue();
-        var xsltInput = xsltEditor.getSession().getValue();
-
-        var parser = new DOMParser();
-        var xmlDoc = parser.parseFromString(xmlInput, "application/xml");
-        var xslDoc = parser.parseFromString(xsltInput, "application/xml");
-
-        if (xmlDoc.documentElement.nodeName == "parsererror" || xslDoc.documentElement.nodeName == "parsererror") {
-          xsltOutputXmlEditor.setValue("Error parsing XML or XSLT.");
-          return;
+        function transformXML() {
+          try {
+            var xmlSource = xsltInputXmlEditor.getSession().getValue();
+            var xslSource = xsltEditor.getSession().getValue();
+            xsltProcessor.reset();
+            xsltProcessor.importStylesheet($.parseXML(xslSource));
+            resultDocument = xsltProcessor.transformToFragment($.parseXML(xmlSource), document);
+            xsltOutputXmlEditor.setValue(xmlSerializer.serializeToString(resultDocument));
+          } catch (error) {
+            xsltOutputXmlEditor.setValue(error.message);
+          }
         }
 
-        var xsltProcessor = new XSLTProcessor();
-        xsltProcessor.importStylesheet(xslDoc);
+        xsltInputXmlEditor.getSession().on("change", function () {
+          setTimeout(transformXML, 100);
+        });
 
-        var resultDoc = xsltProcessor.transformToDocument(xmlDoc);
-        var resultString = new XMLSerializer().serializeToString(resultDoc);
-        xsltOutputXmlEditor.setValue(resultString);
-      }
+        xsltEditor.getSession().on("change", function () {
+          setTimeout(transformXML, 100);
+        });
+      });
     </script>
   </body>
 </html>
