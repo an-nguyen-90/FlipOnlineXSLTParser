@@ -115,6 +115,7 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script>
       $(document).ready(function () {
         var xsltOutputXmlEditor = $("#xsltOutputXmlEditor");
@@ -133,7 +134,7 @@
           hasCssTransforms: true,
           wrap: true,
           printMargin: false,
-          value: "Enter or paste CSV here" + "\n".repeat(100),
+          value: "Enter or paste CSV here",
         });
 
         var xmlTempEditor = ace.edit("xmlTempEditor", {
@@ -148,9 +149,7 @@
           wrap: true,
           printMargin: false,
         });
-        const xmlTemplate = `<?xml version="1.0"?>
-<root>
-  <Row>
+        const xmlTemplate = `<Row>
     <Cell FieldNo="1">{field1}</Cell>
     <Cell FieldNo="2">{field2}</Cell>
     <Cell FieldNo="3">{field3}</Cell>
@@ -240,8 +239,7 @@
     <Cell FieldNo="87">{field87}</Cell>
     <Cell FieldNo="88">{field88}</Cell>
     <Cell FieldNo="89">{field89}</Cell>
-  </Row>
-</root>`;
+  </Row>`;
         xmlTempEditor.setValue(xmlTemplate);
 
         var xsltInputXmlEditor = ace.edit("xsltInputXmlEditor", {
@@ -286,27 +284,34 @@
         });
 
         $("#csvToXmlBtn").click(function convertToXML() {
-          var csvInput = csvEditor.getSession().getValue().replace(/"/, "");
+          const topSection = `<?xml version="1.0"?>
+  <root>\n`;
+          const bottomSection = `\n</root>`;
+
+          var csvInput = csvEditor.getSession().getValue();
           var hasHeader = document.getElementById("hasHeader").checked;
           var xmlTemplate = xmlTempEditor.getSession().getValue();
-          var lines = csvInput.split("\n");
           var xmlOutput = "";
 
-          for (var i = 0; i < lines.length; i++) {
-            var fields = lines[i].split(",");
-            if (hasHeader && i === 0) {
-              // Skip the first line if it is a header
-              continue;
-            }
+          Papa.parse(csvInput, {
+            complete: function (results) {
+              const csvData = hasHeader ? results.data.slice(1) : results.data;
+              var rowSection = "";
 
-            xmlOutput +=
-              xmlTemplate.replace(/\{field(\d+)\}/g, function (match, p1) {
-                var fieldIndex = parseInt(p1, 10) - 1;
-                // Check if the field is undefined or an empty string
-                return fields[fieldIndex] !== undefined && fields[fieldIndex] !== "" ? fields[fieldIndex] : ""; // Updated this line
-              }) + "\n";
-          }
-          xsltInputXmlEditor.setValue(xmlOutput);
+              csvData.forEach((row) => {
+                var xmlRow = xmlTemplate.replace(/{field(\d+)}/g, function (match, capture) {
+                  var cellValue = row[capture - 1];
+                  return cellValue !== undefined ? cellValue : "";
+                });
+
+                rowSection += xmlRow;
+              });
+
+              xmlOutput = topSection + rowSection + bottomSection;
+
+              xsltInputXmlEditor.setValue(xmlOutput);
+            },
+          });
         });
 
         function transformXML() {
